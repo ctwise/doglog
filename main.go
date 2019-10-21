@@ -19,8 +19,8 @@ const delayIncreaseFactor = 2.0
 
 // Adjust the delay between calls to Datadog so we don't hammer it when no messages have
 // arrived for a while.
-func adjustDelay(delay float64, messages []logMessage) float64 {
-	if len(messages) == 0 {
+func adjustDelay(delay float64, found bool) float64 {
+	if !found {
 		if delay < maxDelay {
 			delay *= delayIncreaseFactor
 			if delay > maxDelay {
@@ -64,8 +64,7 @@ func main() {
 	opts := parseArgs()
 
 	if !opts.tail {
-		messages, nextId := commandListMessages(opts)
-		printMessages(messages, opts, nextId)
+		_ = commandListMessages(opts)
 	} else {
 		var delay = minDelay
 
@@ -84,16 +83,13 @@ func main() {
 
 		//noinspection GoInfiniteFor
 		for {
-			messages, nextId := commandListMessages(opts)
-			if len(messages) > 0 {
-				s.Stop()
-				printMessages(messages, opts, nextId)
-				s.Start()
-			}
+			s.Stop()
+			found := commandListMessages(opts)
+			s.Start()
 
 			delayForSeconds(delay)
 
-			delay = adjustDelay(delay, messages)
+			delay = adjustDelay(delay, found)
 		}
 	}
 }

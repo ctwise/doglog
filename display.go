@@ -146,9 +146,22 @@ func normalizeLevel(msg logMessage) string {
 	if len(level) == 0 {
 		level = msg.fields[levelField]
 	}
+	if len(level) == 0 {
+		level = msg.fields["status"]
+	}
 	level = strings.ToUpper(level)
-	if level == "WARNING" {
+	if strings.HasPrefix(level, "E") {
+		level = errorLevel
+	} else if strings.HasPrefix(level, "F") {
+		level = fatalLevel
+	} else if strings.HasPrefix(level, "I") {
+		level = infoLevel
+	} else if strings.HasPrefix(level, "W") {
 		level = warnLevel
+	} else if strings.HasPrefix(level, "D") {
+		level = debugLevel
+	} else if strings.HasPrefix(level, "T") {
+		level = traceLevel
 	}
 	msg.fields[logLevelField] = level
 	return level

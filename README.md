@@ -2,7 +2,7 @@
 
 Command-line interface to search and interrogate a Datadog instance. Very useful for searching and tailing logs from the command-line.
 
-Originally came from https://github.com/bvargo/gtail. I converted it first to Python 3, then Go.
+Originally came from https://github.com/bvargo/gtail. I converted it to Go and Datadog.
 
 ```text
 usage: datadog [-h|--help] [--list-streams] [-a|--application "<value>"]
@@ -16,7 +16,6 @@ usage: datadog [-h|--help] [--list-streams] [-a|--application "<value>"]
 Arguments:
 
   -h  --help          Print help information
-      --list-streams  List Datadog streams and exit.
   -a  --application   Special case to search the 'application' message field,
                       e.g., -a send-email is equivalent to -q
                       'application:send-email'. Merged with the -q query using
@@ -46,31 +45,27 @@ Arguments:
       --no-colors     Don't use colors in output.
 ```
 
-Requires a configuration file be setup. By default, the application looks in ~/.datadog.
+Requires a configuration file be setup. By default, the application looks in ~/.doglog.
 
 A default configuration file might look like:
 
 ```ini
 [server]
-; Datadog REST API
-uri: https://<server>:<port>/api
-; optional username and password
-username: <username>
-password: <password>
-ignoreCert: false
+api-key: <API key>
+application-key: <Application Key>
 [formats]
 ; log formats (list them most specific to least specific, they will be tried in order)
 ; all fields must be present or the format won't be applied
 ; Formats use the Go template syntax.
 ;
 ; access log w/bytes
-format1: <{{.source}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}} {{.bytes}}
+format1: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}} {{.bytes}}
 ; access log w/o bytes
-format2: <{{.source}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}}
+format2: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}}
 ; java log entry
-format3: <{{.source}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+format3: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
 ; syslog
-format4: <{{.source}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} [{{.facility}}] : {{._message_text}}
+format4: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} [{{.facility}}] : {{._message_text}}
 ; generic entry with a loglevel
-format5: <{{.source}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} : {{._message_text}}
+format5: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} : {{._message_text}}
 ```

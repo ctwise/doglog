@@ -10,17 +10,13 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
-	lru "github.com/hashicorp/golang-lru"
+	"github.com/imdario/mergo"
 )
 
 const jsonAcceptType = "application/json"
 
 const datadogOutputTimeFormat = "2006-01-02T15:04:05.000Z"
 const datadogInputTimeFormat = "2006-01-02 15:04:05"
-
-// Stores recent log messages. Datadog doesn't have any methods for preventing duplicates or overlaps, so we have to
-// filter them out ourselves.
-var msgCache, _ = lru.New(1024)
 
 // Simple structure to hold a single log message.
 type logMessage struct {
@@ -31,56 +27,70 @@ type logMessage struct {
 
 // Fetch all messages that match the settings in the options.
 func fetchMessages(opts *options, startingId string) (result []logMessage, nextId string) {
-	api := messageAPIURI(opts)
+	api := messageAPIURI(opts, startingId)
 	jsonBytes := callDatadog(opts, api, jsonAcceptType)
 	messages := getJSONArray(jsonBytes, "logs")
 	nextId = getJSONString(jsonBytes, "nextLogId")
-	_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		id := getJSONString(value, "id")
-		msg := getJSONSimpleMap(value, "content")
-		tsStr := msg[timestampField]
-		// 2019-10-03T13:22:52.882Z
+	status := getJSONString(jsonBytes, "status")
+	if status == "ok" || status == "done" {
+		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+			id := getJSONString(value, "id")
+			attrs := getJSONSimpleMap(value, "content", "attributes")
+			msg := getJSONSimpleMap(value, "content")
+			// tags := getJSONArrayOfStrings(value, "tags")
+			_ = mergo.Merge(&msg, attrs)
+			// msg["tags"] = tags
+			tsStr := msg[timestampField]
+			// 2019-10-03T13:22:52.882Z
 
-		ts, err := time.Parse(datadogOutputTimeFormat, tsStr)
-		if err != nil {
-			_, _ = fmt.Fprintf(os.Stderr, "Invalid json timestamp: %s - %s\n", tsStr, err.Error())
-		}
-		if err == nil {
-			msgObj := logMessage{
-				id:        id,
-				timestamp: ts,
-				fields:    msg,
+			ts, err := time.Parse(datadogOutputTimeFormat, tsStr)
+			if err != nil {
+				_, _ = fmt.Fprintf(os.Stderr, "Invalid json timestamp: %s - %s\n", tsStr, err.Error())
 			}
-			result = append(result, msgObj)
-		}
-	})
-
-	return result, nextId
+			if err == nil {
+				msgObj := logMessage{
+					id:        id,
+					timestamp: ts,
+					fields:    msg,
+				}
+				result = append(result, msgObj)
+			}
+		})
+		return result, nextId
+	} else {
+		_, _ = fmt.Fprintf(os.Stderr, "Error while retrieving logs, status was: %s", status)
+		return []logMessage{}, ""
+	}
 }
 
 // Compute the API Uri to call. Determined by examining the command-line options.
-func messageAPIURI(opts *options) (uri string) {
-	api := "{\"query\": \"%QUERY%\",\"time\": {\"from\": \"%START%\", \"to\": \"%END%\"}, \"sort\": \"desc\", \"limit\": %LIMIT%}"
+func messageAPIURI(opts *options, nextId string) (uri string) {
+	api := "{\"query\": \"%QUERY%\",\"time\": {\"from\": \"%START%\", \"to\": \"%END%\"}, \"sort\": \"desc\", \"limit\": %LIMIT%, \"startAt\": %STARTAT%}"
 	if opts.startDate == nil || opts.endDate == nil {
 		// uri = fmt.Sprintf(relativeSearch, strconv.Itoa(opts.timeRange))
-		strings.Replace(api, "%START%", "now - "+strconv.Itoa(opts.timeRange)+"s", 1)
-		strings.Replace(api, "%END%", "now", 1)
+		api = strings.Replace(api, "%START%", "now - "+strconv.Itoa(opts.timeRange)+"s", 1)
+		api = strings.Replace(api, "%END%", "now", 1)
 	} else {
-		strings.Replace(api, "%START%", (*opts.startDate).Format(datadogInputTimeFormat), 1)
-		strings.Replace(api, "%END%", (*opts.endDate).Format(datadogInputTimeFormat), 1)
+		api = strings.Replace(api, "%START%", (*opts.startDate).Format(datadogInputTimeFormat), 1)
+		api = strings.Replace(api, "%END%", (*opts.endDate).Format(datadogInputTimeFormat), 1)
 	}
 	if opts.limit > 0 {
-		strings.Replace(api, "%LIMIT%", strconv.Itoa(opts.limit), 1)
+		api = strings.Replace(api, "%LIMIT%", strconv.Itoa(opts.limit), 1)
 	} else {
-		strings.Replace(api, "%LIMIT%", "50", 1)
+		api = strings.Replace(api, "%LIMIT%", "50", 1)
 	}
 	if len(opts.query) > 0 {
-		strings.Replace(api, "%QUERY%", opts.query, 1)
+		api = strings.Replace(api, "%QUERY%", opts.query, 1)
 	} else {
-		strings.Replace(api, "%QUERY%", "*", 1)
+		api = strings.Replace(api, "%QUERY%", "*", 1)
+	}
+	if len(nextId) > 0 {
+		api = strings.Replace(api, "%STARTAT%", nextId, 1)
+	} else {
+		api = strings.Replace(api, "%STARTAT%", "null", 1)
 	}
 
-	return uri
+	return api
 }
 
 // Common entry-point for calls to Datadog.

@@ -21,7 +21,7 @@ const DefaultLimit = 300
 const DefaultRange = "2h"
 
 // DefaultConfigPath is the default location of the configuration path.
-const DefaultConfigPath = "~/.datadog"
+const DefaultConfigPath = "~/.doglog"
 
 // options structure stores the command-line options and values.
 type options struct {
