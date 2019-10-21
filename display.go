@@ -130,6 +130,12 @@ func constructMessageText(msg logMessage, originalMessage string) {
 			messageText = messageText + "\n" + strings.Join(extraInfo[1:len(extraInfo)-1], "\n")
 		}
 	}
+	if len(messageText) == 0 {
+		data, err := json.Marshal(msg.fields)
+		if err == nil {
+			messageText = string(data)
+		}
+	}
 	msg.fields[messageTextField] = messageText
 }
 
