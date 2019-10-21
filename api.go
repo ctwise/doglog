@@ -30,7 +30,12 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 	api := messageAPIURI(opts, startingId)
 	jsonBytes := callDatadog(opts, api, jsonAcceptType)
 	messages := getJSONArray(jsonBytes, "logs")
-	nextId = getJSONString(jsonBytes, "nextLogId")
+	_, valueType, err := getJSONValue(jsonBytes, "nextLogId")
+	if err != nil || valueType == jsonparser.Null {
+		nextId = ""
+	} else {
+		nextId = getJSONString(jsonBytes, "nextLogId")
+	}
 	status := getJSONString(jsonBytes, "status")
 	if status == "ok" || status == "done" {
 		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
