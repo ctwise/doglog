@@ -26,7 +26,7 @@ Arguments:
                       'export.csv'. Format is 'field1,field2,field3...'.
                       Requires --start (and, optionally, --end) option.
   -l  --limit         The maximum number of messages to request from Datadog.
-                      Must be greater then 0. Default: 300
+                      Must be greater then 0. Default: 50
   -s  --stream        The name of the stream(s) to display messages from.
                       Default: all streams.
   -t  --tail          Whether to tail the output. Requires a relative search.

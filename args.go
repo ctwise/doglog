@@ -15,7 +15,7 @@ import (
 )
 
 // DefaultLimit is the value used when no limit is provided by the user
-const DefaultLimit = 300
+const DefaultLimit = 50
 
 // DefaultRange is the value used when no range is provided by the user
 const DefaultRange = "2h"
