@@ -15,8 +15,6 @@ const infoEsc = "\033[92m"
 const resetEsc = "\033[0;0m"
 const warnEsc = "\033[93m"
 
-const boldEsc = "\033[1m"
-
 const debugLevel = "DEBUG"
 const errorLevel = "ERROR"
 const fatalLevel = "FATAL"
@@ -25,11 +23,6 @@ const traceLevel = "TRACE"
 const warnLevel = "WARN"
 
 const longTimeFormat = "2006-01-02T15:04:05.000Z"
-
-// Print a string in bold text.
-func printBoldText(text string) {
-	fmt.Println(boldEsc + text + resetEsc)
-}
 
 // Print a single log message
 func printMessage(opts *options, msg logMessage) {
@@ -147,7 +140,7 @@ func normalizeLevel(msg logMessage) string {
 		level = msg.fields[levelField]
 	}
 	if len(level) == 0 {
-		level = msg.fields["status"]
+		level = msg.fields[statusField]
 	}
 	level = strings.ToUpper(level)
 	if strings.HasPrefix(level, "E") {

@@ -13,16 +13,6 @@ func getJSONValue(data []byte, keys ...string) (slice []byte, dataType jsonparse
 	return slice, dataType, err
 }
 
-// Retrieve a single boolean value from the json buffer.
-func getJSONBool(data []byte, keys ...string) bool {
-	value, err := jsonparser.GetBoolean(data, keys...)
-	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Unable to retrieve bool for keys: %v - %s\n", keys, err.Error())
-		return false
-	}
-	return value
-}
-
 // Retrieve a single string value from the json buffer.
 func getJSONString(data []byte, keys ...string) string {
 	value, err := jsonparser.GetString(data, keys...)
@@ -46,17 +36,17 @@ func getJSONArray(data []byte, keys ...string) []byte {
 	return []byte{}
 }
 
-// Retrieve a parsed array of strings from the json buffer.
-func getJSONArrayOfStrings(data []byte, keys ...string) []string {
-	arraySlice := getJSONArray(data, keys...)
-	var stringList []string
-	_, _ = jsonparser.ArrayEach(arraySlice, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
-			stringList = append(stringList, Expand(string(value)))
-		}
-	})
-	return stringList
-}
+//// Retrieve a parsed array of strings from the json buffer.
+//func getJSONArrayOfStrings(data []byte, keys ...string) []string {
+//	arraySlice := getJSONArray(data, keys...)
+//	var stringList []string
+//	_, _ = jsonparser.ArrayEach(arraySlice, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+//		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
+//			stringList = append(stringList, Expand(string(value)))
+//		}
+//	})
+//	return stringList
+//}
 
 // Retrieve a parsed map of values from the json buffer. Numbers and booleans are converted to strings.
 func getJSONSimpleMap(data []byte, keys ...string) map[string]string {
