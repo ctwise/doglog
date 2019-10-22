@@ -43,6 +43,9 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 	}
 	status := getJSONString(jsonBytes, "status")
 	if status == "ok" || status == "done" {
+		if status == "done" {
+			nextId = ""
+		}
 		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 			id := getJSONString(value, "id")
 			attrs := getJSONSimpleMap(value, "content", "attributes")
