@@ -1,6 +1,6 @@
-# Datadog-Go
+# Doglog
 
-Command-line interface to search and interrogate a Datadog instance. Very useful for searching and tailing logs from the command-line. The default rate limiting for Datadog accounts and the Log Query API is 300 calls per hour. That is very, very low to use this utility. You will almost certainly need to request that limit to be raised.
+Command-line interface to search and output logs from Datadog. Very useful for searching and tailing logs from the command-line. The default rate limiting for Datadog accounts and the Log Query API is 300 calls per hour. That is very, very low to use this utility. You will almost certainly need to request that limit to be raised.
 
 The query syntax is defined here: https://docs.datadoghq.com/logs/explorer/search/#search-syntax
 
