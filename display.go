@@ -24,6 +24,7 @@ const warnLevel = "WARN"
 
 const longTimeFormat = "2006-01-02T15:04:05.000Z"
 
+// Format a log message into JSON.
 func formatJson(msg logMessage) string {
 	var text string
 
