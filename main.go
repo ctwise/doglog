@@ -9,7 +9,7 @@ import (
 )
 
 // Minimum delay between calls to Datadog
-const minDelay = 0.2
+const minDelay = 10.0
 
 // Maximum delay between calls to Datadog
 const maxDelay = 30.0

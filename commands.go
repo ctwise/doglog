@@ -11,6 +11,8 @@ func commandListMessages(opts *options) bool {
 		}
 		if len(nextId) == 0 {
 			break
+		} else {
+			delayForSeconds(0.2)
 		}
 	}
 
