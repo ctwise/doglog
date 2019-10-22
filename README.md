@@ -41,7 +41,7 @@ Arguments:
       --no-colors    Don't use colors in output.
 ```
 
-Requires a configuration file be setup. By default, the application looks in ~/.doglog.
+Doglog requires a configuration file be setup in order to work. By default, the application looks in ~/.doglog.
 
 A default configuration file might look like:
 
@@ -65,3 +65,12 @@ format4: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s
 ; generic entry with a loglevel
 format5: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} : {{._message_text}}
 ```
+
+Doglog creates some computed fields during log line processing. The computed fields are:
+
+loglevel - The severity level of the log line, whether the incoming log has 'level', 'status' or 'loglevel', the 'loglevel' field will be created and populated with a consistent severity.
+_level_color - If the computed loglevel field is generated, then an ASCII color code for the severity level will be present in this field.
+_reset - Same as _level_color, but this resets the terminal color to Normal.
+_message_text - The log line message text. Multiple fields are examined to generate this field.
+_long_time_timestamp - A consistent timestamp format for logging.
+_short_classname - For Java log lines, this will be the short version of a full classname with package.
