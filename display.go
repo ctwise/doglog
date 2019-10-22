@@ -24,6 +24,21 @@ const warnLevel = "WARN"
 
 const longTimeFormat = "2006-01-02T15:04:05.000Z"
 
+func formatJson(msg logMessage) string {
+	var text string
+
+	buf, _ := json.Marshal(msg.fields)
+	text = strings.TrimRight(string(buf), "}")
+	buf, _ = json.Marshal(msg.tags)
+	text += ",\"tags\":"
+	text += string(buf)
+	text += "}"
+
+	text = strings.ReplaceAll(text, "\\\"", "\"")
+
+	return text
+}
+
 // Print a single log message
 func printMessage(opts *options, msg logMessage) {
 	adjustMessage(msg, opts.noColor)
@@ -31,8 +46,7 @@ func printMessage(opts *options, msg logMessage) {
 	var text string
 
 	if opts.json {
-		buf, _ := json.Marshal(msg.fields)
-		text = string(buf)
+		text = formatJson(msg)
 	} else {
 		for _, f := range opts.serverConfig.Formats() {
 			text = tryFormat(msg, f.Name, f.Format)
@@ -49,8 +63,8 @@ func printMessage(opts *options, msg logMessage) {
 		fmt.Println(text)
 	} else {
 		// Last case fallback in case none of the formats (including the default) match
-		buf, _ := json.Marshal(msg.fields)
-		fmt.Println(string(buf))
+		text = formatJson(msg)
+		fmt.Println(text)
 	}
 }
 
@@ -131,10 +145,7 @@ func constructMessageText(msg logMessage, originalMessage string) {
 		}
 	}
 	if len(messageText) == 0 {
-		data, err := json.Marshal(msg.fields)
-		if err == nil {
-			messageText = string(data)
-		}
+		messageText = formatJson(msg)
 	}
 	// Replace \" with plain "
 	messageText = strings.ReplaceAll(messageText, "\\\"", "\"")
