@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	lru "github.com/hashicorp/golang-lru"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +19,9 @@ const jsonAcceptType = "application/json"
 
 const datadogOutputTimeFormat = "2006-01-02T15:04:05.000Z"
 const datadogInputTimeFormat = "2006-01-02 15:04:05"
+
+// Stores recent log messages. This is used when tailing to prevent an overlap of messages output.
+var msgCache, _ = lru.New(1024)
 
 // Simple structure to hold a single log message.
 type logMessage struct {
@@ -61,6 +66,19 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 				result = append(result, msgObj)
 			}
 		})
+		sort.Slice(result, func(i, j int) bool {
+			return result[i].timestamp.Before(result[j].timestamp)
+		})
+		if opts.limit > 0 {
+			var filteredMessages []logMessage
+			for _, log := range result {
+				if !msgCache.Contains(log.id) {
+					filteredMessages = append(filteredMessages, log)
+					msgCache.Add(log.id, true)
+				}
+			}
+			result = filteredMessages
+		}
 		return result, nextId
 	} else {
 		_, _ = fmt.Fprintf(os.Stderr, "Error while retrieving logs, status was: %s", status)
