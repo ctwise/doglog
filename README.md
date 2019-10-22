@@ -1,6 +1,6 @@
 # Datadog-Go
 
-Command-line interface to search and interrogate a Datadog instance. Very useful for searching and tailing logs from the command-line.
+Command-line interface to search and interrogate a Datadog instance. Very useful for searching and tailing logs from the command-line. The default rate limiting for Datadog accounts and the Log Query API is 300 calls per hour. That is very, very low to use this utility. You will almost certainly need to request that limit to be raised.
 
 Originally came from https://github.com/bvargo/gtail. I converted it to Go and Datadog.
 
@@ -26,7 +26,7 @@ Arguments:
                       'export.csv'. Format is 'field1,field2,field3...'.
                       Requires --start (and, optionally, --end) option.
   -l  --limit         The maximum number of messages to request from Datadog.
-                      Must be greater then 0. Default: 50
+                      Must be greater then 0. Default: 300
   -s  --stream        The name of the stream(s) to display messages from.
                       Default: all streams.
   -t  --tail          Whether to tail the output. Requires a relative search.

@@ -100,7 +100,7 @@ func messageAPIURI(opts *options, nextId string) (uri string) {
 	if opts.limit > 0 {
 		api = strings.Replace(api, "%LIMIT%", strconv.Itoa(opts.limit), 1)
 	} else {
-		api = strings.Replace(api, "%LIMIT%", "50", 1)
+		api = strings.Replace(api, "%LIMIT%", "300", 1)
 	}
 	if len(opts.query) > 0 {
 		api = strings.Replace(api, "%QUERY%", opts.query, 1)
