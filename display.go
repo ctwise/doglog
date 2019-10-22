@@ -97,8 +97,6 @@ func adjustMessage(msg logMessage, isTty bool) {
 		msg.fields[shortClassnameField] = createShortClassname(classname)
 	}
 
-	constructMessageText(msg, originalMessage)
-
 	level := normalizeLevel(msg)
 
 	if isTty {
@@ -106,6 +104,8 @@ func adjustMessage(msg logMessage, isTty bool) {
 	} else {
 		emptyLogLevelColor(msg)
 	}
+
+	constructMessageText(msg, originalMessage)
 }
 
 // Construct the "best" version of the log messages main text. This will look in multiple fields, attempt to
@@ -144,9 +144,11 @@ func normalizeLevel(msg logMessage) string {
 	level := msg.fields[logLevelField]
 	if len(level) == 0 {
 		level = msg.fields[levelField]
+		delete(msg.fields, levelField)
 	}
 	if len(level) == 0 {
 		level = msg.fields[statusField]
+		delete(msg.fields, statusField)
 	}
 	level = strings.ToUpper(level)
 	if strings.HasPrefix(level, "E") {
