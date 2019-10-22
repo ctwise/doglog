@@ -27,6 +27,7 @@ type logMessage struct {
 	id        string
 	timestamp time.Time
 	fields    map[string]string
+	tags      []string
 }
 
 // Fetch all messages that match the settings in the options.
@@ -48,8 +49,7 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 			id := getJSONString(value, "id")
 			msg := getJSONSimpleMap(value, "content")
-			// tags := getJSONArrayOfStrings(value, "tags")
-			// msg["tags"] = tags
+			tags := getJSONArrayOfStrings(value, "content", "tags")
 			tsStr := msg[timestampField]
 			// 2019-10-03T13:22:52.882Z
 
@@ -62,6 +62,7 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 					id:        id,
 					timestamp: ts,
 					fields:    msg,
+					tags:      tags,
 				}
 				result = append(result, msgObj)
 			}

@@ -36,17 +36,17 @@ func getJSONArray(data []byte, keys ...string) []byte {
 	return []byte{}
 }
 
-//// Retrieve a parsed array of strings from the json buffer.
-//func getJSONArrayOfStrings(data []byte, keys ...string) []string {
-//	arraySlice := getJSONArray(data, keys...)
-//	var stringList []string
-//	_, _ = jsonparser.ArrayEach(arraySlice, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-//		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
-//			stringList = append(stringList, Expand(string(value)))
-//		}
-//	})
-//	return stringList
-//}
+// Retrieve a parsed array of strings from the json buffer.
+func getJSONArrayOfStrings(data []byte, keys ...string) []string {
+	arraySlice := getJSONArray(data, keys...)
+	var stringList []string
+	_, _ = jsonparser.ArrayEach(arraySlice, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
+			stringList = append(stringList, Expand(string(value)))
+		}
+	})
+	return stringList
+}
 
 // Retrieve a parsed map of values from the json buffer. Numbers and booleans are converted to strings.
 func getJSONSimpleMap(data []byte, keys ...string) map[string]string {
