@@ -51,13 +51,30 @@ func getJSONArray(data []byte, keys ...string) []byte {
 // Retrieve a parsed map of values from the json buffer. Numbers and booleans are converted to strings.
 func getJSONSimpleMap(data []byte, keys ...string) map[string]string {
 	result := make(map[string]string)
-	_ = jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
+	_ = levelPass(data, "", result, keys)
+	return result
+}
+
+func levelPass(data []byte, path string, result map[string]string, keys []string) error {
+	return jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
+		skey := string(key)
+		if len(path) > 0 {
+			skey = path + "." + skey
+		}
 		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
-			result[string(key)] = Expand(string(value))
+			result[skey] = Expand(string(value))
+		} else if dataType == jsonparser.Object {
+			// Don't count 'attributes' as part of the path
+			if skey == "attributes" {
+				skey = ""
+			}
+			err := levelPass(value, skey, result, []string{})
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	}, keys...)
-	return result
 }
 
 // Expand escape strings. JSON strings from Datadog have embedded escape sequences that aren't getting expanded. We

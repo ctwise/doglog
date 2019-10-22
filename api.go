@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/buger/jsonparser"
-	"github.com/imdario/mergo"
 )
 
 const jsonAcceptType = "application/json"
@@ -48,10 +47,8 @@ func fetchMessages(opts *options, startingId string) (result []logMessage, nextI
 		}
 		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
 			id := getJSONString(value, "id")
-			attrs := getJSONSimpleMap(value, "content", "attributes")
 			msg := getJSONSimpleMap(value, "content")
 			// tags := getJSONArrayOfStrings(value, "tags")
-			_ = mergo.Merge(&msg, attrs)
 			// msg["tags"] = tags
 			tsStr := msg[timestampField]
 			// 2019-10-03T13:22:52.882Z
