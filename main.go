@@ -64,7 +64,7 @@ func main() {
 	opts := parseArgs()
 
 	if !opts.tail {
-		_ = commandListMessages(opts)
+		_ = commandListMessages(opts, nil)
 	} else {
 		var delay = minDelay
 
@@ -83,9 +83,7 @@ func main() {
 
 		//noinspection GoInfiniteFor
 		for {
-			s.Stop()
-			found := commandListMessages(opts)
-			s.Start()
+			found := commandListMessages(opts, s)
 
 			delayForSeconds(delay)
 
