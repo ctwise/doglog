@@ -136,6 +136,8 @@ func constructMessageText(msg logMessage, originalMessage string) {
 			messageText = string(data)
 		}
 	}
+	// Replace \" with plain "
+	messageText = strings.ReplaceAll(messageText, "\\\"", "\"")
 	msg.fields[messageTextField] = messageText
 }
 
