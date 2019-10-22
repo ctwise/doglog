@@ -150,6 +150,10 @@ func normalizeLevel(msg logMessage) string {
 		level = msg.fields[statusField]
 		delete(msg.fields, statusField)
 	}
+	if len(level) == 0 {
+		level = msg.fields[logStatusField]
+		delete(msg.fields, logStatusField)
+	}
 	level = strings.ToUpper(level)
 	if strings.HasPrefix(level, "E") {
 		level = errorLevel
