@@ -55,16 +55,32 @@ application-key: <Application Key>
 ; Formats use the Go template syntax.
 ;
 ; access log w/bytes
-format1: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}} {{.bytes}}
+format1: <{{.host}}> {{.service}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
-format2: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}}
+format2: <{{.host}}> {{.service}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
+; access log w/bytes
+format3: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
+; access log w/o bytes
+format4: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
+; access log w/bytes
+format5: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}} {{.network_bytes_read}}
+; access log w/o bytes
+format6: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
 ; java log entry
-format3: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+format7: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
 ; syslog
-format4: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.facility}}] : {{._message_text}}
-; generic entry with a level
-format5: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._message_text}}
+format8: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._message_text}}
+; mixer _1
+format9: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+; mixer _2
+format10: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_url_details_scheme}} {{.totalSentBytes}} bytes -> {{.totalReceivedBytes}} bytes
+; mixer _3
+format11: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+; generic
+format12: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._message_text}}
 ```
+
+Multi-level field names have the period ('.') separator replaced by an underscore ('_').
 
 Doglog creates some computed fields during log line processing. The computed fields are:
 
