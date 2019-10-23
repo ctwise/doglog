@@ -115,9 +115,9 @@ func adjustMessage(msg logMessage, isTty bool) {
 	level := normalizeLevel(msg)
 
 	if isTty {
-		computeLogLevelColor(level, msg)
+		computeLevelColor(level, msg)
 	} else {
-		emptyLogLevelColor(msg)
+		emptyLevelColor(msg)
 	}
 
 	constructMessageText(msg, originalMessage)
@@ -155,10 +155,10 @@ func constructMessageText(msg logMessage, originalMessage string) {
 
 // Normalize the "level" of the message.
 func normalizeLevel(msg logMessage) string {
-	level := msg.fields[logLevelField]
+	level := msg.fields[levelField]
 	if len(level) == 0 {
-		level = msg.fields[levelField]
-		delete(msg.fields, levelField)
+		level = msg.fields[logLevelField]
+		delete(msg.fields, logLevelField)
 	}
 	if len(level) == 0 {
 		level = msg.fields[statusField]
@@ -182,12 +182,12 @@ func normalizeLevel(msg logMessage) string {
 	} else if strings.HasPrefix(level, "T") {
 		level = traceLevel
 	}
-	msg.fields[logLevelField] = level
+	msg.fields[levelField] = level
 	return level
 }
 
 // Compute the color that should be used to display the log level in the message output.
-func computeLogLevelColor(level string, msg logMessage) {
+func computeLevelColor(level string, msg logMessage) {
 	var levelColor string
 	switch level {
 	case debugLevel, traceLevel:
@@ -203,12 +203,12 @@ func computeLogLevelColor(level string, msg logMessage) {
 		msg.fields[levelColorField] = levelColor
 		msg.fields[resetField] = resetEsc
 	} else {
-		emptyLogLevelColor(msg)
+		emptyLevelColor(msg)
 	}
 }
 
 // Replace color strings with empty strings.
-func emptyLogLevelColor(msg logMessage) {
+func emptyLevelColor(msg logMessage) {
 	msg.fields[levelColorField] = ""
 	msg.fields[resetField] = ""
 }

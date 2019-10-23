@@ -59,17 +59,17 @@ format1: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}]
 ; access log w/o bytes
 format2: <{{.host}}> {{.client_ip}} {{.ident}} {{.auth}} [{{.apache_timestamp}}] "{{.method}} {{.request_page}} HTTP/{{.http_version}}" {{.server_response}}
 ; java log entry
-format3: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+format3: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
 ; syslog
-format4: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} [{{.facility}}] : {{._message_text}}
-; generic entry with a loglevel
-format5: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .loglevel}}{{._reset}} : {{._message_text}}
+format4: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.facility}}] : {{._message_text}}
+; generic entry with a level
+format5: <{{.host}}> {{._long_time_timestamp}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._message_text}}
 ```
 
 Doglog creates some computed fields during log line processing. The computed fields are:
 
-loglevel - The severity level of the log line, whether the incoming log has 'level', 'status', 'log_status' or 'loglevel', the 'loglevel' field will be created and populated with a consistent severity.
-_level_color - If the computed loglevel field is generated, then an ASCII color code for the severity level will be present in this field.
+level - The severity level of the log line, whether the incoming log has 'level', 'status', 'log_status' or 'loglevel', the 'level' field will be created and populated with a consistent severity.
+_level_color - If the computed level field is generated, then an ASCII color code for the severity level will be present in this field.
 _reset - Same as _level_color, but this resets the terminal color to Normal.
 _message_text - The log line message text. Multiple fields are examined to generate this field.
 _long_time_timestamp - A consistent timestamp format for logging.
