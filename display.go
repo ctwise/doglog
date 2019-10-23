@@ -9,11 +9,22 @@ import (
 	"time"
 )
 
-const debugEsc = "\033[94m"
-const errorEsc = "\033[91m"
-const infoEsc = "\033[92m"
-const resetEsc = "\033[0;0m"
-const warnEsc = "\033[93m"
+const greyEsc = "\033[37m"
+const redEsc = "\033[91m"
+const greenEsc = "\033[92m"
+const yellowEsc = "\033[93m"
+const blueEsc = "\033[94m"
+const magentaEsc = "\033[95m"
+const cyanEsc = "\033[96m"
+const whiteEsc = "\033[97m"
+
+//const resetEsc = "\033[39;49m"
+const resetEsc = "\033[39;49m"
+
+const debugEsc = blueEsc
+const errorEsc = redEsc
+const infoEsc = greenEsc
+const warnEsc = yellowEsc
 
 const debugLevel = "DEBUG"
 const errorLevel = "ERROR"
@@ -42,7 +53,7 @@ func formatJson(msg logMessage) string {
 
 // Print a single log message
 func printMessage(opts *options, msg logMessage) {
-	adjustMessage(msg, opts.noColor)
+	adjustMessage(msg, opts.color)
 
 	var text string
 
@@ -115,13 +126,38 @@ func adjustMessage(msg logMessage, isTty bool) {
 
 	level := normalizeLevel(msg)
 
+	constructMessageText(msg, originalMessage)
+
+	setupColors(isTty, level, msg)
+}
+
+// Setup the colors in the message structure.
+func setupColors(isTty bool, level string, msg logMessage) {
 	if isTty {
 		computeLevelColor(level, msg)
+		// Add color escapes
+		msg.fields[blueField] = blueEsc
+		msg.fields[redField] = redEsc
+		msg.fields[greenField] = greenEsc
+		msg.fields[yellowField] = yellowEsc
+		msg.fields[greyField] = greyEsc
+		msg.fields[whiteField] = whiteEsc
+		msg.fields[cyanField] = cyanEsc
+		msg.fields[magentaField] = magentaEsc
+		msg.fields[resetField] = resetEsc
 	} else {
-		emptyLevelColor(msg)
+		// Add color escapes
+		msg.fields[blueField] = ""
+		msg.fields[redField] = ""
+		msg.fields[greenField] = ""
+		msg.fields[yellowField] = ""
+		msg.fields[greyField] = ""
+		msg.fields[whiteField] = ""
+		msg.fields[cyanField] = ""
+		msg.fields[magentaField] = ""
+		msg.fields[levelColorField] = ""
+		msg.fields[resetField] = ""
 	}
-
-	constructMessageText(msg, originalMessage)
 }
 
 // Construct the "best" version of the log messages main text. This will look in multiple fields, attempt to
@@ -203,16 +239,9 @@ func computeLevelColor(level string, msg logMessage) {
 	}
 	if len(levelColor) > 0 {
 		msg.fields[levelColorField] = levelColor
-		msg.fields[resetField] = resetEsc
 	} else {
-		emptyLevelColor(msg)
+		msg.fields[levelColorField] = ""
 	}
-}
-
-// Replace color strings with empty strings.
-func emptyLevelColor(msg logMessage) {
-	msg.fields[levelColorField] = ""
-	msg.fields[resetField] = ""
 }
 
 // Create a shortened version of the Java classname.

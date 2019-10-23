@@ -35,7 +35,7 @@ type options struct {
 	endDate      *time.Time
 	json         bool
 	serverConfig *config.IniFile
-	noColor      bool
+	color        bool
 }
 
 // parseArgs parses the command-line arguments.
@@ -92,7 +92,7 @@ func parseArgs() *options {
 		startDate:   startDate,
 		endDate:     endDate,
 		json:        *json,
-		noColor:     *noColor || isTty(),
+		color:       !*noColor && isTty(),
 	}
 
 	// Read the configuration file
