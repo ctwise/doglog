@@ -67,9 +67,11 @@ format5: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestam
 ; access log w/o bytes
 format6: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
 ; java log entry 1
-java_1: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10_10s" .logger_thread_name}}] {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
+java_1: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
 ; java log entry 2
-java_2: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
+java_2: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+; java log entry 3
+java_3: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] : {{._message_text}}
 ; syslog
 format8: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._message_text}}
 ; mixer _1
