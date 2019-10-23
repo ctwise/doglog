@@ -47,7 +47,7 @@ func printMessage(opts *options, msg logMessage) {
 	var text string
 
 	if opts.json {
-		text = formatJson(msg)
+		text = msg.fields[jsonField]
 	} else {
 		for _, f := range opts.serverConfig.Formats() {
 			text = tryFormat(msg, f.Name, f.Format)
@@ -64,7 +64,7 @@ func printMessage(opts *options, msg logMessage) {
 		fmt.Println(text)
 	} else {
 		// Last case fallback in case none of the formats (including the default) match
-		text = formatJson(msg)
+		text = msg.fields[jsonField]
 		fmt.Println(text)
 	}
 }
@@ -82,6 +82,7 @@ func tryFormat(msg logMessage, tmplName string, tmpl string) string {
 	if err := t.Execute(&result, msg.fields); err == nil {
 		return result.String()
 	}
+
 	return ""
 }
 
@@ -145,8 +146,9 @@ func constructMessageText(msg logMessage, originalMessage string) {
 			messageText = messageText + "\n" + strings.Join(extraInfo[1:len(extraInfo)-1], "\n")
 		}
 	}
+	msg.fields[jsonField] = formatJson(msg)
 	if len(messageText) == 0 {
-		messageText = formatJson(msg)
+		messageText = msg.fields[jsonField]
 	}
 	// Replace \" with plain "
 	messageText = strings.ReplaceAll(messageText, "\\\"", "\"")

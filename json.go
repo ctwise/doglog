@@ -59,7 +59,7 @@ func levelPass(data []byte, path string, result map[string]string, keys []string
 	return jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
 		skey := string(key)
 		if len(path) > 0 {
-			skey = path + "." + skey
+			skey = path + "_" + skey
 		}
 		if dataType == jsonparser.String || dataType == jsonparser.Number || dataType == jsonparser.Boolean {
 			result[skey] = Expand(string(value))

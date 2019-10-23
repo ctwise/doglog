@@ -51,7 +51,7 @@ func (c *IniFile) Formats() (formats []FormatDefinition) {
 	for _, f := range c.ini.Section(formatsSection).Keys() {
 		formats = append(formats, FormatDefinition{Name: f.Name(), Format: f.Value()})
 	}
-	formats = append(formats, FormatDefinition{Name: "_default", Format: "No Formats Defined>> {{._message_text}}"})
+	formats = append(formats, FormatDefinition{Name: "_default", Format: "No Formats Defined>> {{._json}}"})
 
 	return formats
 }
