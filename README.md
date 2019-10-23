@@ -66,8 +66,10 @@ format4: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestam
 format5: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
 format6: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
-; java log entry
-format7: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
+; java log entry 1
+java_1: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10_10s" .logger_thread_name}}] {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
+; java log entry 2
+java_2: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20_20s" ._short_classname}} : {{._message_text}}
 ; syslog
 format8: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._message_text}}
 ; mixer _1
@@ -76,6 +78,10 @@ format9: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{p
 format10: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_url_details_scheme}} {{.totalSentBytes}} bytes -> {{.totalReceivedBytes}} bytes
 ; mixer _3
 format11: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+; vpc flow log
+format_vpc_flow_log: {{._long_time_timestamp}} {{.service}} ({{.aws_account_id}}) {{.vpc_action}} {{.vpc_status}} {{.network_client_ip}}:{{.network_client_port}} -> {{.network_destination_ip}}:{{.network_destination_port}}
+; vpc flow log no data
+format_vpc_flow_log: {{._long_time_timestamp}} {{.service}} ({{.aws_account_id}}) {{.vpc_status}} : {{._message_text}}
 ; generic
 format12: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._message_text}}
 ```
