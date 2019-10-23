@@ -1,6 +1,6 @@
 package main
 
-const classnameField = "classname"
+const classnameField = "logger_name"
 const fullMessageField = "full_message"
 const levelColorField = "_level_color"
 const levelField = "level"
