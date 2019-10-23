@@ -49,43 +49,50 @@ A default configuration file might look like:
 [server]
 api-key: <API key>
 application-key: <Application Key>
+
 [formats]
 ; log formats (list them most specific to least specific, they will be tried in order)
 ; all fields must be present or the format won't be applied
-; Formats use the Go template syntax.
-;
+; Formats use the Go template syntax (https://golang.org/pkg/text/template/).
+
 ; access log w/bytes
-format1: <{{.host}}> {{.service}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
+access_1: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
-format2: <{{.host}}> {{.service}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
+access_2: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
 ; access log w/bytes
-format3: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
+access_3: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
-format4: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
+access_4: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}}
 ; access log w/bytes
-format5: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}} {{.network_bytes_read}}
+access_5: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
-format6: <{{.host}}> {{.service}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
+access_6: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
+
 ; java log entry 1
-java_1: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+java_1: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] {{printf "%-20.20s" ._short_classname}} : {{._cyan}}{{._message_text}}{{._reset}}
 ; java log entry 2
-java_2: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._message_text}}
+java_2: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{printf "%-20.20s" ._short_classname}} : {{._cyan}}{{._message_text}}{{._reset}}
 ; java log entry 3
-java_3: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] : {{._message_text}}
+java_3: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] : {{._cyan}}{{._message_text}}{{._reset}}
+
 ; syslog
-format8: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._message_text}}
+format8: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._cyan}}{{._message_text}}{{._reset}}
+
 ; mixer _1
-format9: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+format9: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
 ; mixer _2
-format10: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_url_details_scheme}} {{.totalSentBytes}} bytes -> {{.totalReceivedBytes}} bytes
+format10: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_url_details_scheme}} {{.totalSentBytes}} bytes -> {{.totalReceivedBytes}} bytes
 ; mixer _3
-format11: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+format11: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
+
 ; vpc flow log
-format_vpc_flow_log: {{._long_time_timestamp}} {{.service}} ({{.aws_account_id}}) {{.vpc_action}} {{.vpc_status}} {{.network_client_ip}}:{{.network_client_port}} -> {{.network_destination_ip}}:{{.network_destination_port}}
+format_vpc_flow_log: {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} ({{.aws_account_id}}) {{.vpc_action}} {{.vpc_status}} {{.network_client_ip}}:{{.network_client_port}} -> {{.network_destination_ip}}:{{.network_destination_port}}
 ; vpc flow log no data
-format_vpc_flow_log: {{._long_time_timestamp}} {{.service}} ({{.aws_account_id}}) {{.vpc_status}} : {{._message_text}}
+format_vpc_flow_log: {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} ({{.aws_account_id}}) {{.vpc_status}} : {{._cyan}}{{._message_text}}{{._reset}}
+
 ; generic
-format12: <{{.host}}> {{._long_time_timestamp}} {{.service}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._message_text}}
+generic_1: B<{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
+generic_1: X<{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
 ```
 
 Multi-level field names have the period ('.') separator replaced by an underscore ('_').
