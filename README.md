@@ -55,6 +55,7 @@ application-key: <Application Key>
 ; all fields must be present or the format won't be applied
 ; Formats use the Go template syntax (https://golang.org/pkg/text/template/).
 
+; Access logs (GET/POST, etc.)
 ; access log w/bytes
 access_1: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} {{.ident}} {{.auth}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/{{.http_version}}" {{.http_status_code}} {{.network_bytes_read}}
 ; access log w/o bytes
@@ -68,6 +69,7 @@ access_5: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}
 ; access log w/o bytes
 access_6: <{{.host}}> {{._magenta}}{{.service}}{{._reset}} {{.network_client_ip}} [{{._long_time_timestamp}}] "{{.http_method}} {{.http_url_details_path}} HTTP/?" {{.http_status_code}}
 
+; Java log entries (have thread and/or class names)
 ; java log entry 1
 java_1: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{printf "%-10.10s" .logger_thread_name}}] {{printf "%-20.20s" ._short_classname}} : {{._cyan}}{{._message_text}}{{._reset}}
 ; java log entry 2
@@ -78,6 +80,7 @@ java_3: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset
 ; syslog
 format8: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} [{{.syslog_appname}}] : {{._cyan}}{{._message_text}}{{._reset}}
 
+; Istio mixer
 ; mixer _1
 format9: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} {{.http_method}} {{.http_url_details_scheme}}:/{{.http_url_details_path}} {{.http_status_code}} {{.network_bytes_read}}
 ; mixer _2
@@ -91,8 +94,8 @@ format_vpc_flow_log: {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._rese
 format_vpc_flow_log: {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} ({{.aws_account_id}}) {{.vpc_status}} : {{._cyan}}{{._message_text}}{{._reset}}
 
 ; generic
-generic_1: B<{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
-generic_1: X<{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
+generic_1: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} {{._level_color}}{{printf "%-5.5s" .level}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
+generic_2: <{{.host}}> {{._long_time_timestamp}} {{._magenta}}{{.service}}{{._reset}} : {{._cyan}}{{._message_text}}{{._reset}}
 ```
 
 Multi-level field names have the period ('.') separator replaced by an underscore ('_').
