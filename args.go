@@ -25,7 +25,7 @@ const DefaultConfigPath = "~/.doglog"
 
 // options structure stores the command-line options and values.
 type options struct {
-	application  string
+	service      string
 	query        string
 	limit        int
 	tail         bool
@@ -45,7 +45,7 @@ func parseArgs() *options {
 
 	var defaultConfigPath = expandPath(DefaultConfigPath)
 
-	application := parser.String("a", "application", &argparse.Options{Required: false, Help: "Special case to search the 'application' message field, e.g., -a send-email is equivalent to -q 'application:send-email'. Merged with the -q query using 'AND' if the -q query is present."})
+	service := parser.String("s", "service", &argparse.Options{Required: false, Help: "Special case to search the 'service' message field, e.g., -s send-email is equivalent to -q 'service:send-email'. Merged with the -q query using 'AND' if the -q query is present."})
 	query := parser.String("q", "query", &argparse.Options{Required: false, Help: "Query terms to search on (Elasticsearch syntax). Defaults to '*'."})
 	limit := parser.Int("l", "limit", &argparse.Options{Required: false, Help: "The maximum number of messages to request from Datadog. Must be greater then 0", Default: DefaultLimit})
 	tail := parser.Flag("t", "tail", &argparse.Options{Required: false, Help: "Whether to tail the output. Requires a relative search."})
@@ -74,8 +74,8 @@ func parseArgs() *options {
 	}
 
 	var newQuery string
-	if len(*application) > 0 {
-		newQuery = "application:" + *application
+	if len(*service) > 0 {
+		newQuery = "service:" + *service
 		if len(*query) > 0 {
 			newQuery += " AND " + *query
 		}
@@ -83,16 +83,16 @@ func parseArgs() *options {
 	}
 
 	opts := options{
-		application: *application,
-		query:       *query,
-		limit:       *limit,
-		tail:        *tail,
-		configPath:  *configPath,
-		timeRange:   timeRangeToSeconds(parser, *timeRange),
-		startDate:   startDate,
-		endDate:     endDate,
-		json:        *json,
-		color:       !*noColor && isTty(),
+		service:    *service,
+		query:      *query,
+		limit:      *limit,
+		tail:       *tail,
+		configPath: *configPath,
+		timeRange:  timeRangeToSeconds(parser, *timeRange),
+		startDate:  startDate,
+		endDate:    endDate,
+		json:       *json,
+		color:      !*noColor && isTty(),
 	}
 
 	// Read the configuration file

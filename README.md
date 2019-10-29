@@ -7,7 +7,7 @@ The query syntax is defined here: https://docs.datadoghq.com/logs/explorer/searc
 Originally came from https://github.com/bvargo/gtail. I converted it to Go and Datadog.
 
 ```text
-usage: datadog [-h|--help] [-a|--application "<value>"] [-q|--query "<value>"]
+usage: datadog [-h|--help] [-s|--service "<value>"] [-q|--query "<value>"]
                [-l|--limit <integer>] [-t|--tail] [-c|--config "<value>"]
                [-r|--range "<value>"] [--start "<value>"] [--end "<value>"]
                [-j|--json] [--no-colors]
@@ -16,29 +16,28 @@ usage: datadog [-h|--help] [-a|--application "<value>"] [-q|--query "<value>"]
 
 Arguments:
 
-  -h  --help         Print help information
-  -a  --application  Special case to search the 'application' message field,
-                     e.g., -a send-email is equivalent to -q
-                     'application:send-email'. Merged with the -q query using
-                     'AND' if the -q query is present.
-  -q  --query        Query terms to search on (Elasticsearch syntax). Defaults
-                     to '*'.
-  -l  --limit        The maximum number of messages to request from Datadog.
-                     Must be greater then 0. Default: 300
-  -t  --tail         Whether to tail the output. Requires a relative search.
-  -c  --config       Path to the config file. Default: /home/ctwise/.doglog
-  -r  --range        Time range to search backwards from the current moment.
-                     Examples: 30m, 2h, 4d. Default: 2h
-      --start        Starting time to search from. Allows variable formats,
-                     including '1:32pm' or '1/4/2019 12:30:00'.
-      --end          Ending time to search from. Allows variable formats,
-                     including '6:45am' or '2019-01-04 12:30:00'. Defaults to
-                     now if --start is provided but no --end.
-  -j  --json         Output messages in json format. Shows the modified log
-                     message, not the untouched message from Datadog. Useful in
-                     understanding the fields available when creating Format
-                     templates or for further processing.
-      --no-colors    Don't use colors in output.
+  -h  --help       Print help information
+  -s  --service    Special case to search the 'service' message field, e.g., -s
+                   send-email is equivalent to -q 'service:send-email'. Merged
+                   with the -q query using 'AND' if the -q query is present.
+  -q  --query      Query terms to search on (Elasticsearch syntax). Defaults to
+                   '*'.
+  -l  --limit      The maximum number of messages to request from Datadog. Must
+                   be greater then 0. Default: 300
+  -t  --tail       Whether to tail the output. Requires a relative search.
+  -c  --config     Path to the config file. Default: /home/ctwise/.doglog
+  -r  --range      Time range to search backwards from the current moment.
+                   Examples: 30m, 2h, 4d. Default: 2h
+      --start      Starting time to search from. Allows variable formats,
+                   including '1:32pm' or '1/4/2019 12:30:00'.
+      --end        Ending time to search from. Allows variable formats,
+                   including '6:45am' or '2019-01-04 12:30:00'. Defaults to now
+                   if --start is provided but no --end.
+  -j  --json       Output messages in json format. Shows the modified log
+                   message, not the untouched message from Datadog. Useful in
+                   understanding the fields available when creating Format
+                   templates or for further processing.
+      --no-colors  Don't use colors in output.
 ```
 
 Doglog requires a configuration file be setup in order to work. By default, the application looks in ~/.doglog.
