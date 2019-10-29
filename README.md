@@ -20,7 +20,7 @@ Arguments:
   -s  --service    Special case to search the 'service' message field, e.g., -s
                    send-email is equivalent to -q 'service:send-email'. Merged
                    with the -q query using 'AND' if the -q query is present.
-  -q  --query      Query terms to search on (Elasticsearch syntax). Defaults to
+  -q  --query      Query terms to search on (Doglog search syntax). Defaults to
                    '*'.
   -l  --limit      The maximum number of messages to request from Datadog. Must
                    be greater then 0. Default: 300

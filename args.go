@@ -46,7 +46,7 @@ func parseArgs() *options {
 	var defaultConfigPath = expandPath(DefaultConfigPath)
 
 	service := parser.String("s", "service", &argparse.Options{Required: false, Help: "Special case to search the 'service' message field, e.g., -s send-email is equivalent to -q 'service:send-email'. Merged with the -q query using 'AND' if the -q query is present."})
-	query := parser.String("q", "query", &argparse.Options{Required: false, Help: "Query terms to search on (Elasticsearch syntax). Defaults to '*'."})
+	query := parser.String("q", "query", &argparse.Options{Required: false, Help: "Query terms to search on (Doglog search syntax). Defaults to '*'."})
 	limit := parser.Int("l", "limit", &argparse.Options{Required: false, Help: "The maximum number of messages to request from Datadog. Must be greater then 0", Default: DefaultLimit})
 	tail := parser.Flag("t", "tail", &argparse.Options{Required: false, Help: "Whether to tail the output. Requires a relative search."})
 	configPath := parser.String("c", "config", &argparse.Options{Required: false, Help: "Path to the config file", Default: defaultConfigPath})
