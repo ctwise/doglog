@@ -101,9 +101,11 @@ Multi-level field names have the period ('.') separator replaced by an underscor
 
 Doglog creates some computed fields during log line processing. The computed fields are:
 
-level - The severity level of the log line, whether the incoming log has 'level', 'status', 'log_status' or 'loglevel', the 'level' field will be created and populated with a consistent severity.
-_level_color - If the computed level field is generated, then an ASCII color code for the severity level will be present in this field.
-_reset - Same as _level_color, but this resets the terminal color to Normal.
-_message_text - The log line message text. Multiple fields are examined to generate this field.
-_long_time_timestamp - A consistent timestamp format for logging.
-_short_classname - For Java log lines, this will be the short version of a full classname with package.
+| Field Name          | Description |
+|---------------------|-------------|
+|level                |The severity level of the log line, whether the incoming log has 'level', 'status', 'log_status' or 'loglevel', the 'level' field will be created and populated with a consistent severity.
+|_level_color         |If the computed level field is generated, then an ASCII color code for the severity level will be present in this field.
+|_reset               |Same as _level_color, but this resets the terminal color to Normal.
+|_message_text        |The log line message text. Multiple fields are examined to generate this field.
+|_long_time_timestamp |A consistent timestamp format for logging.
+|_short_classname     |For Java log lines, this will be the short version of a full classname with package.
