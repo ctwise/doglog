@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/Masterminds/sprig"
 	"strings"
 	"text/template"
 	"time"
@@ -53,7 +54,7 @@ func formatJson(msg logMessage) string {
 
 // Print a single log message
 func printMessage(opts *options, msg logMessage) {
-	adjustMessage(msg, opts.color)
+	adjustMessage(opts, msg)
 
 	var text string
 
@@ -83,11 +84,7 @@ func printMessage(opts *options, msg logMessage) {
 // Try to apply a format template.
 // returns: empty string if the format failed.
 func tryFormat(msg logMessage, tmplName string, tmpl string) string {
-	funcMap := template.FuncMap{
-		"ToUpper": strings.ToUpper,
-		"ToLower": strings.ToLower,
-	}
-	var t = template.Must(template.New(tmplName).Option("missingkey=error").Funcs(funcMap).Parse(tmpl))
+	var t = template.Must(template.New(tmplName).Funcs(sprig.TxtFuncMap()).Option("missingkey=error").Parse(tmpl))
 	var result bytes.Buffer
 
 	if err := t.Execute(&result, msg.fields); err == nil {
@@ -104,29 +101,24 @@ func longTime(t time.Time) string {
 }
 
 // "Cleanup" the log message and add helper fields.
-func adjustMessage(msg logMessage, isTty bool) {
+func adjustMessage(opts *options, msg logMessage) {
+	isTty := opts.color
 	requestPage := msg.fields[requestPageField]
 	if len(requestPage) > 1 && !strings.HasPrefix(requestPage, "/") {
 		msg.fields[requestPageField] = "/" + requestPage
 	}
 
-	originalMessage := msg.fields[originalMessageField]
-	if len(originalMessage) == 0 {
-		originalMessage = msg.fields[fullMessageField]
-		msg.fields[originalMessageField] = originalMessage
-	}
-
 	timestamp := msg.timestamp
 	msg.fields[longTimestampField] = longTime(timestamp)
 
-	classname := msg.fields[classnameField]
+	classname, _ := opts.serverConfig.MapField(msg.fields, "classname")
 	if len(classname) > 0 {
 		msg.fields[shortClassnameField] = createShortClassname(classname)
 	}
 
-	level := normalizeLevel(msg)
+	level := normalizeLevel(opts, msg)
 
-	constructMessageText(msg, originalMessage)
+	constructMessageText(opts, msg)
 
 	setupColors(isTty, level, msg)
 }
@@ -162,11 +154,12 @@ func setupColors(isTty bool, level string, msg logMessage) {
 
 // Construct the "best" version of the log messages main text. This will look in multiple fields, attempt to
 // append multi-line text (stacktraces) onto the message text, etc.
-func constructMessageText(msg logMessage, originalMessage string) {
+func constructMessageText(opts *options, msg logMessage) {
 	const nestedException = "; nested exception "
 	const newlineNnestedException = ";\nnested exception "
 
-	messageText := msg.fields[messageField]
+	messageText, _ := opts.serverConfig.MapField(msg.fields, "message")
+	originalMessage, _ := opts.serverConfig.MapField(msg.fields, "full_message")
 	if len(messageText) == 0 {
 		messageText = originalMessage
 	}
@@ -192,20 +185,8 @@ func constructMessageText(msg logMessage, originalMessage string) {
 }
 
 // Normalize the "level" of the message.
-func normalizeLevel(msg logMessage) string {
-	level := msg.fields[levelField]
-	if len(level) == 0 {
-		level = msg.fields[logLevelField]
-		delete(msg.fields, logLevelField)
-	}
-	if len(level) == 0 {
-		level = msg.fields[statusField]
-		delete(msg.fields, statusField)
-	}
-	if len(level) == 0 {
-		level = msg.fields[logStatusField]
-		delete(msg.fields, logStatusField)
-	}
+func normalizeLevel(opts *options, msg logMessage) string {
+	level, _ := opts.serverConfig.MapField(msg.fields, "level")
 	level = strings.ToUpper(level)
 	if strings.HasPrefix(level, "E") {
 		level = errorLevel
@@ -220,7 +201,7 @@ func normalizeLevel(msg logMessage) string {
 	} else if strings.HasPrefix(level, "T") {
 		level = traceLevel
 	}
-	msg.fields[levelField] = level
+	msg.fields[computedLevelField] = level
 	return level
 }
 

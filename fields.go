@@ -1,18 +1,14 @@
 package main
 
 // Special fields
-const classnameField = "logger_name"
 const fullMessageField = "full_message"
-const levelField = "level"
-const statusField = "status"
-const logLevelField = "loglevel"
 const messageField = "message"
 const originalMessageField = "original_message"
 const timestampField = "timestamp"
-const logStatusField = "log_status"
 const requestPageField = "request_page"
 
 // Computed fields
+const computedLevelField = "_level"
 const longTimestampField = "_long_time_timestamp"
 const messageTextField = "_message_text"
 const jsonField = "_json"
