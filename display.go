@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./config"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -19,7 +20,6 @@ const magentaEsc = "\033[95m"
 const cyanEsc = "\033[96m"
 const whiteEsc = "\033[97m"
 
-//const resetEsc = "\033[39;49m"
 const resetEsc = "\033[39;49m"
 
 const debugEsc = blueEsc
@@ -70,7 +70,7 @@ func printMessage(opts *options, msg logMessage) {
 	}
 
 	if len(text) > 0 {
-		if strings.HasPrefix(text, "No Formats Defined>>") {
+		if strings.HasPrefix(text, config.NoFormatDefined) {
 			fmt.Println("stop")
 		}
 		fmt.Println(text)

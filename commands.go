@@ -12,7 +12,9 @@ func commandListMessages(opts *options, s *spinner.Spinner) bool {
 		messages, nextId := fetchMessages(opts, "")
 		if len(messages) > 0 {
 			found = true
-			printMessages(messages, opts)
+			for _, msg := range messages {
+				printMessage(opts, msg)
+			}
 		}
 		if s != nil {
 			s.Start()
@@ -25,10 +27,4 @@ func commandListMessages(opts *options, s *spinner.Spinner) bool {
 	}
 
 	return found
-}
-
-func printMessages(messages []logMessage, opts *options) {
-	for _, msg := range messages {
-		printMessage(opts, msg)
-	}
 }

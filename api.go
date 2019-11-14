@@ -19,6 +19,20 @@ const jsonAcceptType = "application/json"
 const datadogOutputTimeFormat = "2006-01-02T15:04:05.000Z"
 const datadogInputTimeFormat = "2006-01-02 15:04:05"
 
+// JSON fields returned from Datadog call.
+const logsField = "logs"
+const statusField = "status"
+const idField = "id"
+const contentField = "content"
+const tagsField = "tags"
+const nextLogIdField = "nextLogId"
+
+// Datadog status values
+const statusOk = "ok"     // More messages.
+const statusDone = "done" // No more messages.
+
+const datadogUri = "https://api.datadoghq.com/api/v1/logs-queries/list?api_key=%s&application_key=%s"
+
 // Stores recent log messages. This is used when tailing to prevent an overlap of messages output.
 var msgCache, _ = lru.New(1024)
 
@@ -34,57 +48,63 @@ type logMessage struct {
 func fetchMessages(opts *options, startingId string) (result []logMessage, nextId string) {
 	api := messageAPIURI(opts, startingId)
 	jsonBytes := callDatadog(opts, api, jsonAcceptType)
-	messages := getJSONArray(jsonBytes, "logs")
-	_, valueType, err := getJSONValue(jsonBytes, "nextLogId")
+
+	// Get the messages from the returned JSON.
+	messages := getJSONArray(jsonBytes, logsField)
+	_, valueType, err := getJSONValue(jsonBytes, nextLogIdField)
 	if err != nil || valueType == jsonparser.Null {
 		nextId = ""
 	} else {
-		nextId = getJSONString(jsonBytes, "nextLogId")
+		nextId = getJSONString(jsonBytes, nextLogIdField)
 	}
-	status := getJSONString(jsonBytes, "status")
-	if status == "ok" || status == "done" {
-		if status == "done" {
-			nextId = ""
-		}
-		_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
-			id := getJSONString(value, "id")
-			msg := getJSONSimpleMap(value, "content")
-			tags := getJSONArrayOfStrings(value, "content", "tags")
-			tsStr := msg[timestampField]
-			// 2019-10-03T13:22:52.882Z
 
-			ts, err := time.Parse(datadogOutputTimeFormat, tsStr)
-			if err != nil {
-				_, _ = fmt.Fprintf(os.Stderr, "Invalid json timestamp: %s - %s\n", tsStr, err.Error())
-			}
-			if err == nil {
-				msgObj := logMessage{
-					id:        id,
-					timestamp: ts,
-					fields:    msg,
-					tags:      tags,
-				}
-				result = append(result, msgObj)
-			}
-		})
-		sort.Slice(result, func(i, j int) bool {
-			return result[i].timestamp.Before(result[j].timestamp)
-		})
-		if opts.limit > 0 {
-			var filteredMessages []logMessage
-			for _, log := range result {
-				if !msgCache.Contains(log.id) {
-					filteredMessages = append(filteredMessages, log)
-					msgCache.Add(log.id, true)
-				}
-			}
-			result = filteredMessages
-		}
-		return result, nextId
+	status := getJSONString(jsonBytes, statusField)
+	if status == statusOk || status == statusDone {
+		return extractMessages(status, nextId, messages, opts)
 	} else {
 		_, _ = fmt.Fprintf(os.Stderr, "Error while retrieving logs, status was: %s", status)
 		return []logMessage{}, ""
 	}
+}
+
+func extractMessages(status string, nextId string, messages []byte, opts *options) (result []logMessage, nextIdResult string) {
+	if status == statusDone {
+		nextId = ""
+	}
+	_, _ = jsonparser.ArrayEach(messages, func(value []byte, dataType jsonparser.ValueType, offset int, err error) {
+		id := getJSONString(value, idField)
+		msg := getJSONSimpleMap(value, contentField)
+		tags := getJSONArrayOfStrings(value, contentField, tagsField)
+		tsStr := msg[timestampField] // 2019-10-03T13:22:52.882Z
+
+		ts, err := time.Parse(datadogOutputTimeFormat, tsStr)
+		if err != nil {
+			_, _ = fmt.Fprintf(os.Stderr, "Invalid json timestamp: %s - %s\n", tsStr, err.Error())
+		}
+		if err == nil {
+			msgObj := logMessage{
+				id:        id,
+				timestamp: ts,
+				fields:    msg,
+				tags:      tags,
+			}
+			result = append(result, msgObj)
+		}
+	})
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].timestamp.Before(result[j].timestamp)
+	})
+	if opts.limit > 0 {
+		var filteredMessages []logMessage
+		for _, log := range result {
+			if !msgCache.Contains(log.id) {
+				filteredMessages = append(filteredMessages, log)
+				msgCache.Add(log.id, true)
+			}
+		}
+		result = filteredMessages
+	}
+	return result, nextId
 }
 
 // Compute the API Uri to call. Determined by examining the command-line options.
@@ -125,7 +145,7 @@ func callDatadog(opts *options, api string, acceptType string) []byte {
 	applicationKey := cfg.ApplicationKey()
 
 	if acceptType == jsonAcceptType {
-		uri := fmt.Sprintf("https://api.datadoghq.com/api/v1/logs-queries/list?api_key=%s&application_key=%s", apiKey, applicationKey)
+		uri := fmt.Sprintf(datadogUri, apiKey, applicationKey)
 		return readBytes(uri, api)
 	}
 

@@ -10,12 +10,19 @@ import (
 	"strings"
 )
 
-const formatsSection string = "formats"
-const serverSection string = "server"
-const fieldSection string = "fields"
+const NoFormatDefined = "No Formats Defined>>"
 
-var storedFormats []FormatDefinition = nil
-var storedFields map[string][]string = nil
+const FullMessageField = "full_message"
+const LevelField = "level"
+const MessageField = "message"
+const ClassnameField = "classname"
+
+const formatsSection string = "formats" // [formats]
+const serverSection string = "server"   // [server]
+const fieldSection string = "fields"    // [fields]
+
+var storedFormats []FormatDefinition = nil // Stores formats so we don't keep re-reading them
+var storedFields map[string][]string = nil // Stores field mappings so we don't keep re-reading them
 
 // IniFile is a wrapper around the INI file reader
 type IniFile struct {
@@ -57,7 +64,7 @@ func (c *IniFile) Formats() (formats []FormatDefinition) {
 		for _, f := range c.ini.Section(formatsSection).Keys() {
 			formats = append(formats, FormatDefinition{Name: f.Name(), Format: f.Value()})
 		}
-		formats = append(formats, FormatDefinition{Name: "_default", Format: "No Formats Matched>> {{._json}}"})
+		formats = append(formats, FormatDefinition{Name: "_default", Format: NoFormatDefined + " {{._json}}"})
 		storedFormats = formats
 	}
 
@@ -68,10 +75,10 @@ func (c *IniFile) Formats() (formats []FormatDefinition) {
 func (c *IniFile) Fields() (fields map[string][]string) {
 	if storedFields == nil {
 		storedFields = make(map[string][]string)
-		storedFields["level"] = []string{"level", "status", "loglevel", "log_status"}
-		storedFields["message"] = []string{"message", "msg"}
-		storedFields["full_message"] = []string{"full_message", "original_message"}
-		storedFields["classname"] = []string{"logger_name"}
+		storedFields[LevelField] = []string{"level", "status", "loglevel", "log_status"}
+		storedFields[MessageField] = []string{"message", "msg"}
+		storedFields[FullMessageField] = []string{"full_message", "original_message"}
+		storedFields[ClassnameField] = []string{"logger_name"}
 		for _, f := range c.ini.Section(fieldSection).Keys() {
 			name := f.Name()
 			value := f.Value()

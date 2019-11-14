@@ -1,9 +1,6 @@
 package main
 
 // Special fields
-const fullMessageField = "full_message"
-const messageField = "message"
-const originalMessageField = "original_message"
 const timestampField = "timestamp"
 const requestPageField = "request_page"
 

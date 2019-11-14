@@ -33,11 +33,13 @@ func adjustDelay(delay float64, found bool) float64 {
 	return delay
 }
 
+// Sleep. We can't just spin on the Datadog call and there's no callback or interrupt options.
 func delayForSeconds(delay float64) {
 	delayInMilliseconds := int(delay * 1000.0)
 	time.Sleep(time.Duration(delayInMilliseconds) * time.Millisecond)
 }
 
+// Create a new terminal spinner.
 func setupSpinner() *spinner.Spinner {
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 	s.UpdateCharSet(spinner.CharSets[21]) // box of dots
@@ -47,6 +49,7 @@ func setupSpinner() *spinner.Spinner {
 	return s
 }
 
+// This channel is purely for the handling of signals.
 func makeSignalsChannel() chan os.Signal {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c,
